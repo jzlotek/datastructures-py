@@ -1,6 +1,4 @@
-from point2d import Point2D
 from aabb import AABB
-from p5 import *
 
 
 class QuadTree:
@@ -21,14 +19,14 @@ class QuadTree:
         self.__n_east = QuadTree(AABB(x + half_w, y, half_w, half_h))
         self.__s_west = QuadTree(AABB(x, y + half_h, half_w, half_h))
         self.__s_east = QuadTree(AABB(x + half_w, y + half_h, half_w, half_h))
-
-        for pt in self.__points:
-            self.__n_west.insert(pt)
-            self.__n_east.insert(pt)
-            self.__s_west.insert(pt)
-            self.__s_east.insert(pt)
-
-        self.__points = []
+        #
+        # for pt in self.__points:
+        #     self.__n_west.insert(pt)
+        #     self.__n_east.insert(pt)
+        #     self.__s_west.insert(pt)
+        #     self.__s_east.insert(pt)
+        #
+        # self.__points = []
 
     def query(self, b: AABB):
         points = []
@@ -51,16 +49,20 @@ class QuadTree:
 
     def get_all(self):
         points = []
+
         for pt in self.__points:
             points.append(pt)
 
         if self.__n_west is not None:
-            points.append(self.__n_east.get_all())
-            points.append(self.__n_west.get_all())
-            points.append(self.__s_east.get_all())
-            points.append(self.__s_west.get_all())
+            points.extend(self.__n_east.get_all())
+            points.extend(self.__n_west.get_all())
+            points.extend(self.__s_east.get_all())
+            points.extend(self.__s_west.get_all())
 
         return points
+
+    def get_points(self):
+        return self.__points
 
     def insert(self, pt):
         if self.__boundary.contains(pt):
@@ -69,32 +71,27 @@ class QuadTree:
                 return True
             else:
                 if len(self.__points) >= self.__max_points:
+
                     self.split()
+
+                    for p in self.__points:
+                        self.__n_west.insert(p)
+                        self.__n_east.insert(p)
+                        self.__s_west.insert(p)
+                        self.__s_east.insert(p)
+                    self.__points = []
+
                 self.__n_west.insert(pt)
                 self.__n_east.insert(pt)
                 self.__s_west.insert(pt)
                 self.__s_east.insert(pt)
+
                 return True
         else:
             return False
 
+    def get_boundary(self):
+        return self.__boundary
 
-if __name__ == "__main__":
-
-    q = QuadTree(AABB(0, 0, 10, 10))
-    q.insert(Point2D(1, 1))
-
-    pts = q.query(AABB(0, 0, 1, 1))
-    for pt in pts:
-        print(str(pt))
-
-
-    def setup():
-        size(1000, 1000)
-        background(0)
-
-
-    try:
-        run()
-    except:
-        pass
+    def get_children(self):
+        return self.__n_west, self.__n_east, self.__s_west, self.__s_east
