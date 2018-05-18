@@ -1,6 +1,6 @@
 from point2d import Point2D
 
-
+# AxisAlignedBoundingBox
 class AABB:
     def __init__(self, x, y, w, h):
         self.x = x

@@ -11,6 +11,7 @@ class QuadTree:
         self.__s_east = None
         self.__points = []
 
+    # Split quadtree into 4 quadrants and set children
     def split(self):
         half_w = self.__boundary.w / 2
         half_h = self.__boundary.h / 2
@@ -19,15 +20,8 @@ class QuadTree:
         self.__n_east = QuadTree(AABB(x + half_w, y, half_w, half_h))
         self.__s_west = QuadTree(AABB(x, y + half_h, half_w, half_h))
         self.__s_east = QuadTree(AABB(x + half_w, y + half_h, half_w, half_h))
-        #
-        # for pt in self.__points:
-        #     self.__n_west.insert(pt)
-        #     self.__n_east.insert(pt)
-        #     self.__s_west.insert(pt)
-        #     self.__s_east.insert(pt)
-        #
-        # self.__points = []
 
+    # Search region bounded by an AABB and return points
     def query(self, b: AABB):
         points = []
         if not self.__boundary.intersects(b):
@@ -64,6 +58,7 @@ class QuadTree:
     def get_points(self):
         return self.__points
 
+    # Insert point recursively into the QuadTree. Splits if __max_points is exceeded
     def insert(self, pt):
         if self.__boundary.contains(pt):
             if self.__n_west is None and len(self.__points) < self.__max_points:
